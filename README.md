@@ -57,3 +57,71 @@ PUT         /api/drivers/{id}/availability  - Set availability
 DELETE      /api/drivers/{id}               - Remove driver
 GET         /api/drivers/stats              - Get Trie statistics
 
+```
+
+## Day 2: Min-Heap (Priority Queue) for Finding K Closest Drivers
+
+### What we built
+
+- **Haversine Distance Calculator** - Accurate distance calculation accounting for Earth's curvature
+- **Min-Heap (Priority Queue)** - Custom implementation for efficient top-K selection
+- **Driver Matching Service** - Combines Trie + Min-Heap for optimal driver matching
+- **Ride Request API** - Complete endpoints for requesting rides and finding drivers
+
+
+### Data Structures & Algorithms Used
+
+#### 1. Min-Heap (Priority Queue)
+
+- **Purpose**: Efficiently find K smallest/closest elements from N candidates
+- **Structure**: Complete binary tree stored in array
+- **Operations**:
+  - Insert: O(log n) - bubble up
+  - Extract Min: O(log n) - bubble down
+  - Peek: O(1) - just view root
+  - Build Heap: O(n) - bottom-up heapify
+- **Why Better than Sorting**:
+  - Full sort: O(n log n) to sort all N drivers
+  - Min-Heap: O(n log k) where k = drivers to return
+  - With 10,000 drivers, finding 5 closest: Heap is 5.7x faster!
+
+#### 2. Haversine Formula
+
+- **Purpose**: Calculate great-circle distance between two points on Earth
+- **Formula**:
+```
+  a = sin²(Δlat/2) + cos(lat1) × cos(lat2) × sin²(Δlon/2)
+  c = 2 × atan2(√a, √(1-a))
+  distance = R × c  (where R = Earth's radius = 6371 km)
+```
+- **Why**: Accounts for Earth's curvature, more accurate than Euclidean distance
+- **Time Complexity**: O(1)
+
+#### 3. Complete Driver Matching Algorithm
+
+**Combined approach using multiple data structures:**
+
+1. **Geohash Trie** (from Day 1): O(k + m)
+  - Narrow search to nearby area
+  - k = geohash prefix length (~5)
+  - m = drivers in area
+
+2. **Haversine Distance**: O(m)
+  - Calculate exact distance to each nearby driver
+  - More accurate than geohash approximation
+
+3. **Min-Heap**: O(m log K)
+  - Insert all m nearby drivers into heap
+  - Extract K closest drivers
+  - K is typically small (3-5 drivers)
+
+**Total Time Complexity**: O(m log K) where m << total drivers
+- Much better than O(n log n) for sorting all drivers!
+
+### New API Endpoints
+```
+POST   /api/rides/request                    - Request ride, get K closest drivers
+GET    /api/rides/nearby-drivers             - Find nearby drivers
+GET    /api/rides/nearby-drivers/radius      - Find drivers within radius
+GET    /api/rides/availability               - Check driver availability stats
+```
