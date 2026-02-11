@@ -46,16 +46,4 @@ public class HaversineDistanceCalculator {
             return String.format("%.2f km", distanceKm);
         }
     }
-
-    public static String formatTime(double minutes) {
-        if (minutes < 1.0) {
-            return "< 1 min";
-        } else if (minutes < 60) {
-            return String.format("%.0f mins", minutes);
-        } else {
-            int hours = (int) (minutes / 60);
-            int mins = (int) (minutes % 60);
-            return String.format("%d hr %d mins", hours, mins);
-        }
-    }
 }
